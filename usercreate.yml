@@ -1,0 +1,32 @@
+---
+- name: Create user and configure passwordless sudo
+  hosts: all
+#  become: true
+#  become_method: sudo
+
+  vars:
+    username: arun
+
+  tasks:
+    - name: Create user
+      ansible.builtin.user:
+        name: "{{ username }}"
+        shell: /bin/bash
+        create_home: yes
+        state: present
+
+    - name: Set authorized key (optional but recommended)
+      authorized_key:
+        user: "{{ username }}"
+        state: present
+        key: "{{ lookup('file', 'id_rsa_2048_xshellPUB') }}"
+#      when: false  # set to true if you want SSH key auth
+
+    - name: Add user to sudoers with NOPASSWD
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ username }}"
+        content: "{{ username }} ALL=(ALL) NOPASSWD:ALL\n"
+        owner: root
+        group: root
+        mode: '0440'
+        validate: '/usr/sbin/visudo -cf %s'
