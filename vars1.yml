@@ -1,5 +1,6 @@
 ---
 - name: This sets up an httpd webserver
+  hosts: all
   vars:
     myname: "rajesh kumar"
     package: "httpd"
